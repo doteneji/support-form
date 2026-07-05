@@ -19,7 +19,6 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 
 const requestTypes = ["Bug", "Question", "Feature Request", "Configuration", "Other"];
-const areas = ["Jobs", "Scheduling", "Timesheets", "Invoicing", "Reports", "Administration", "Other"];
 const impactLevels = ["Blocking work", "Slowing work down", "Minor inconvenience", "General question"];
 
 function AttachmentsField() {
@@ -112,55 +111,25 @@ export default function Home({
 
               <Separator />
 
-              <div className="space-y-4">
-                <h2 className="text-sm font-medium text-muted-foreground">
-                  About your request
-                </h2>
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Product</Label>
-                  <RadioGroup name="product" defaultValue="Compass" className="flex gap-6">
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="Compass" id="product-compass" />
-                      <Label htmlFor="product-compass" className="font-normal">Compass</Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="Other" id="product-other" />
-                      <Label htmlFor="product-other" className="font-normal">Other</Label>
-                    </div>
-                  </RadioGroup>
+                  <Label htmlFor="requestType">Request Type</Label>
+                  <Select name="requestType" required>
+                    <SelectTrigger id="requestType" className="w-full">
+                      <SelectValue placeholder="Select a type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {requestTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="requestType">Request Type</Label>
-                    <Select name="requestType" required>
-                      <SelectTrigger id="requestType" className="w-full">
-                        <SelectValue placeholder="Select a type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {requestTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="area">Area</Label>
-                    <Select name="area" required>
-                      <SelectTrigger id="area" className="w-full">
-                        <SelectValue placeholder="Select an area" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {areas.map((area) => (
-                          <SelectItem key={area} value={area}>
-                            {area}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="area">Area</Label>
+                  <Input id="area" name="area" placeholder="e.g. Invoicing" />
                 </div>
               </div>
 
@@ -188,6 +157,10 @@ export default function Home({
                       </div>
                     ))}
                   </RadioGroup>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea id="notes" name="notes" rows={3} placeholder="Anything else we should know?" />
                 </div>
                 <AttachmentsField />
               </div>
