@@ -1,5 +1,6 @@
 "use client";
 
+import { use, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,59 @@ const requestTypes = ["Bug", "Question", "Feature Request", "Configuration", "Ot
 const areas = ["Jobs", "Scheduling", "Timesheets", "Invoicing", "Reports", "Administration", "Other"];
 const impactLevels = ["Blocking work", "Slowing work down", "Minor inconvenience", "General question"];
 
-export default function Home() {
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+function AttachmentsField() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<File[]>([]);
+
+  function handleDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    if (inputRef.current) inputRef.current.files = event.dataTransfer.files;
+    setFiles(Array.from(event.dataTransfer.files));
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="attachments">Attachments</Label>
+      <div
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={handleDrop}
+        onClick={() => inputRef.current?.click()}
+        className="cursor-pointer rounded-lg border border-dashed border-input p-6 text-center text-sm text-muted-foreground hover:bg-accent/50"
+      >
+        Drag files here, or click to browse
+        <input
+          ref={inputRef}
+          id="attachments"
+          name="attachments"
+          type="file"
+          multiple
+          accept="image/*,.pdf"
+          className="hidden"
+          onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+        />
+      </div>
+      {files.length > 0 && (
+        <ul className="text-sm text-muted-foreground">
+          {files.map((file) => (
+            <li key={file.name}>{file.name}</li>
+          ))}
+        </ul>
+      )}
+      <p className="text-sm text-muted-foreground">
+        Screenshots or files that help explain the issue.
+      </p>
+    </div>
+  );
+}
+
+export default function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ email?: string }>;
+}) {
+  const { email } = use(searchParams);
+
+  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     // TODO: send this wherever support requests should go (Plain, email, etc.)
@@ -46,24 +98,16 @@ export default function Home() {
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-4">
-                <h2 className="text-sm font-medium text-muted-foreground">
-                  Contact Information
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" name="name" placeholder="Jane Doe" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" placeholder="jane@company.com" required />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="company">Company</Label>
-                  <Input id="company" name="company" placeholder="Acme Inc." />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="jane@company.com"
+                  defaultValue={email}
+                  required
+                />
               </div>
 
               <Separator />
@@ -145,13 +189,7 @@ export default function Home() {
                     ))}
                   </RadioGroup>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="attachments">Attachments</Label>
-                  <Input id="attachments" name="attachments" type="file" multiple accept="image/*,.pdf" />
-                  <p className="text-sm text-muted-foreground">
-                    Screenshots or files that help explain the issue.
-                  </p>
-                </div>
+                <AttachmentsField />
               </div>
 
               <Button type="submit" className="w-full">
